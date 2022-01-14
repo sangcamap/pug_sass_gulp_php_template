@@ -1,0 +1,22 @@
+//* Abstract
+@import './abstracts/variables';
+@import './abstracts/mixins';
+@import './abstracts/animations';
+//* Base
+@import './base/reset';
+@import './base/typography';
+//* Components
+@import './components/button';
+@import './components/header';
+@import './components/footer';
+//* Pages
+
+//* Layouts
+
+//* Themes
+
+//* Vendors
+
+body{
+    width: 100%;
+}
