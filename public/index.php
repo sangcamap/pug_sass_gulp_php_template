@@ -7,10 +7,9 @@
     <title>Document</title>
   </head>
   <body> 
-    <h1>Hello world</h1><?php
-    if ($multiline) {
-      echo 'Foo!';
-    }
+    <h1>Hello world</h1>
+    <?php
+    include "./module.php";
     ?>
   </body>
 </html>

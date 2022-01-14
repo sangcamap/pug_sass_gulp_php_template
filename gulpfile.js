@@ -4,16 +4,22 @@ const sass = require("gulp-sass");
 const imagemin = require("gulp-imagemin");
 const uglify = require("gulp-uglify");
 const babel = require("gulp-babel");
-const browsersync = require("browser-sync").create();
+const browsersync = require("browser-sync");
 const autoprefixer = require("gulp-autoprefixer");
 const cache = require("gulp-cache");
 const del = require("del");
 const plumber = require("gulp-plumber");
 const rename = require("gulp-rename");
+const phpConnect = require('gulp-connect-php');
+
 
 /* Options
  * ------ */
 const options = {
+	php: {
+		src: "build/views/php/*.php",
+		dest: "public"
+	},
 	pug: {
 		src: ["build/views/*.pug", "build/views/!blocks/**", "build/views/!layout/**"],
 		all: "build/views/**/*.pug",
@@ -48,15 +54,24 @@ const options = {
 	}
 };
 
+function connectsync() {
+    return phpConnect.server({
+        port: 3000,
+        keepalive: true,
+        base: "public"
+    }
+	, function (){
+        browsersync({
+            proxy: 'localhost:3000'
+        });
+    }
+	);
+}
+
 /* Browser-sync
  * ------------ */
 function browserSync(done) {
-	browsersync.init({
-		server: {
-			baseDir: options.browserSync.baseDir
-		},
-		port: 3000
-	});
+    browsersync.reload();
 	done();
 }
 
@@ -137,6 +152,18 @@ function views() {
 		);
 }
 
+
+function php() {
+	return gulp
+		.src(options.php.src)
+		.pipe(gulp.dest(options.php.dest))
+		.pipe(
+			browsersync.reload({
+				stream: true
+			})
+		);
+}
+
 /* Images
  * ------ */
 
@@ -200,15 +227,16 @@ function watchFiles() {
 	gulp.watch(options.pug.all, views);
 	gulp.watch(options.styles.src, styles);
 	gulp.watch(options.scripts.src, scripts);
+	gulp.watch(options.php.src, php);
 }
 
 /* Build
  * ------ */
 const build = gulp.series(
 	clean,
-	gulp.parallel(styles, views, scripts, images, fonts, sounds, videos)
+	gulp.parallel(styles, views, scripts, php, images, fonts, sounds, videos, connectsync)
 );
-const watch = gulp.parallel(watchFiles, browserSync);
+const watch = gulp.parallel(connectsync, watchFiles, browserSync);
 // export tasks
 exports.styles = styles;
 exports.views = views;
